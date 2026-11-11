@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DEAD SIGNAL</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="/style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="loading" class="screen">
+    <h1>DEAD SIGNAL</h1>
+    <p class="tag">Preparing ECHO-9…</p>
+  </div>
+
+  <div id="menu" class="screen hidden">
+    <h1>DEAD SIGNAL</h1>
+    <p class="tag">Some signals are never meant to be answered.</p>
+    <div class="menu-buttons">
+      <button id="btn-new">New Game</button>
+      <button id="btn-continue" disabled>Continue</button>
+      <button id="btn-settings">Settings</button>
+      <button id="btn-credits">Credits</button>
+    </div>
+    <p class="hint">WASD move · Mouse look · Shift sprint · E interact · F flashlight · I inventory · J log · T message EVA · Hold V talk to EVA · Esc pause</p>
+  </div>
+
+  <div id="hud" class="hidden">
+    <div id="reticle"></div>
+    <div id="prompt" class="hidden"></div>
+    <div id="objective"></div>
+    <div id="flash-status">FLASHLIGHT · ON</div>
+    <div id="eva-status" class="eva-unavailable"><span class="dot"></span><span class="txt">EVA LINK · CHECKING</span></div>
+  </div>
+
+  <div id="toast" class="hidden"></div>
+  <div id="saved" class="hidden">SAVED</div>
+  <div id="subtitle" class="hidden"><span class="speaker"></span><span class="line"></span></div>
+
+  <div id="terminal" class="hidden">
+    <div class="term-frame">
+      <div class="term-head"><span id="term-title"></span><button class="t-close" data-close>Close · Esc</button></div>
+      <div id="term-body"></div>
+      <div id="term-actions"></div>
+    </div>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="term-frame">
+      <div class="term-head"><span id="panel-title"></span><button class="t-close" data-close>Close · Esc</button></div>
+      <div id="panel-body"></div>
+    </div>
+  </div>
+
+  <div id="eva-chat" class="hidden">
+    <div class="term-frame eva-frame">
+      <div class="term-head"><span>EVA · STATION LINK</span><button class="t-close" id="eva-close">Close · Esc</button></div>
+      <div id="eva-log"></div>
+      <form id="eva-form" autocomplete="off">
+        <input id="eva-input" maxlength="300" placeholder="Ask EVA something…" />
+        <button type="submit" id="eva-send">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="paused" class="screen hidden">
+    <h2>PAUSED</h2>
+    <div class="menu-buttons">
+      <button id="btn-resume">Resume</button>
+      <button id="btn-psettings">Settings</button>
+      <button id="btn-mainmenu">Main Menu</button>
+      <button id="btn-restart" class="danger">Restart</button>
+    </div>
+  </div>
+
+  <div id="settings" class="overlay hidden">
+    <div class="sheet">
+      <h3>Settings</h3>
+      <div class="set-group">
+        <div class="set-title">Audio</div>
+        <label class="row"><span>Master</span><input type="range" min="0" max="1" step="0.05" data-setting="master"><output data-out="master"></output></label>
+        <label class="row"><span>Music</span><input type="range" min="0" max="1" step="0.05" data-setting="music"><output data-out="music"></output></label>
+        <label class="row"><span>Effects</span><input type="range" min="0" max="1" step="0.05" data-setting="sfx"><output data-out="sfx"></output></label>
+        <label class="row"><span>Voice</span><input type="range" min="0" max="1" step="0.05" data-setting="voice"><output data-out="voice"></output></label>
+      </div>
+      <div class="set-group">
+        <div class="set-title">Controls</div>
+        <label class="row"><span>Mouse sensitivity</span><input type="range" min="0.3" max="2.5" step="0.1" data-setting="sensitivity"><output data-out="sensitivity"></output></label>
+        <label class="row"><span>Invert mouse Y</span><input type="checkbox" data-setting="invertY"></label>
+        <label class="row"><span>Head bob</span><input type="checkbox" data-setting="headBob"></label>
+      </div>
+      <div class="set-group">
+        <div class="set-title">Graphics</div>
+        <label class="row"><span>Quality</span>
+          <select data-setting="quality">
+            <option value="low">Low — 1× resolution, no glow, 5 lights</option>
+            <option value="medium">Medium — 1.25× resolution, glow, 7 lights</option>
+            <option value="high">High — 1.5× resolution, glow, 9 lights, torch shadows</option>
+          </select>
+        </label>
+      </div>
+      <div class="set-group">
+        <div class="set-title">EVA conversation</div>
+        <p class="note" id="eva-service-note">Checking EVA service…</p>
+        <label class="row"><span>Voice (hold V)</span><input type="checkbox" id="eva-voice-toggle"></label>
+        <p class="note">The microphone is only used while you hold V. Speech-to-text uses your browser's built-in recognition service (in Chrome, audio is sent to Google for transcription). Press T in game to type to EVA instead.</p>
+      </div>
+      <button id="settings-back">Back</button>
+    </div>
+  </div>
+
+  <div id="credits" class="overlay hidden">
+    <div class="sheet">
+      <h3>Credits</h3>
+      <p class="credit-title">DEAD SIGNAL</p>
+      <p>Created by AR Nayak</p>
+      <p class="note">Built with Three.js. Geometry, textures, music and sound are generated in real time by the game. Live EVA dialogue uses the Claude API when configured.</p>
+      <button id="credits-back">Back</button>
+    </div>
+  </div>
+
+  <div id="confirm" class="overlay hidden">
+    <div class="sheet small">
+      <p id="confirm-text"></p>
+      <div class="confirm-buttons">
+        <button id="confirm-no">Cancel</button>
+        <button id="confirm-yes" class="danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="click-resume" class="hidden">CLICK TO CONTINUE</div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

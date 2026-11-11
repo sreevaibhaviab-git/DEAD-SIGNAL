@@ -1,0 +1,19 @@
+{
+  "name": "dead-signal",
+  "private": true,
+  "version": "0.3.0",
+  "description": "DEAD SIGNAL - first-person sci-fi horror (Phase One)",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "node server/server.js",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check-only",
+    "start": "node server/server.js --dist"
+  },
+  "dependencies": {
+    "three": "0.187.0"
+  }
+}
